@@ -1,0 +1,26 @@
+node {
+    def server = Artifactory.server 'ReposityVM'
+    def rtMaven = Artifactory.newMavenBuild()
+    def buildInfo
+
+    stage ('Clone') {
+        git credentialsId: 'P3G2',
+            branch: 'master',
+            url: 'https://gitlab.com/McKingly/es-2018-2019-p3g2.git'
+    }
+
+    stage ('Artifactory configuration') {
+        rtMaven.tool = 'MavenLocal' // Tool name from Jenkins configuration
+        rtMaven.deployer releaseRepo: 'libs-release-local', snapshotRepo: 'p3g2', server: server
+        rtMaven.resolver releaseRepo: 'libs-release', snapshotRepo: 'libs-snapshot', server: server
+        buildInfo = Artifactory.newBuildInfo()
+    }
+
+    stage ('Exec Maven') {
+        rtMaven.run pom: 'java/pom.xml', goals: 'clean install', buildInfo: buildInfo
+    }
+
+    stage ('Publish build info') {
+        server.publishBuildInfo buildInfo
+    }
+}

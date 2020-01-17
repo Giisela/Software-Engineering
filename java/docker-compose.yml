@@ -1,0 +1,20 @@
+version: "3"
+services:
+  mongodb:
+    image: mongo:3.2.4
+    container_name: "mongodb"
+    ports:
+      - 27017:27017
+    command: --smallfiles
+  app:
+    image: docker/java
+    container_name: "p3g2-java"
+    ports:
+      - 8080:8080
+    links:
+      - mongodb
+  opencv:
+    container_name: "p3g2-openCV"
+    build:
+      context: ../OpenCV
+      dockerfile: Dockerfile

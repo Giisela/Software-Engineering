@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+    tools {
+        maven 'MavenLocal'
+        jdk 'JDK18'
+    }
+    stages {
+        stage ('Initialize') {
+            steps {
+                echo 'Cloning project'
+                git credentialsId: 'P3G2',
+                branch: 'master',
+                url: 'https://gitlab.com/McKingly/es-2018-2019-p3g2.git'
+                dir('java'){
+                    sh '''mvn install dockerfile:build
+                          docker-compose up'''
+                }
+            }
+        }
+    }
+}
